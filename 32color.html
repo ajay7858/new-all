@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>No Reload Website</title>
+    <style>
+        /* Basic Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #060d1a, #000000);
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        /* Switch Container */
+        .switch-container {
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: absolute;
+            top: 20px;
+        }
+
+        /* Switch Styling */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #e0e0e0;
+            transition: 0.4s;
+            border-radius: 34px;
+            box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2), -3px -3px 6px rgba(255, 255, 255, 0.5);
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        input:checked + .slider {
+            background-color: #6a11cb; /* Purple color */
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Mode Label */
+        .mode-label {
+            font-size: 18px;
+            font-weight: bold;
+            color: white; /* White text for better contrast */
+        }
+
+        /* Main Container */
+        .container {
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            margin-top: 60px;
+        }
+
+        /* Result Styling */
+        .result {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            color: white; /* White text for better contrast */
+        }
+
+        .result.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Button Styling */
+        .button {
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            background: linear-gradient(135deg, #b13415, #feb47b); /* Coral to Peach gradient */
+            color: white;
+            border: none;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            width: 100%;
+            max-width: 200px;
+            box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2), -4px -4px 8px rgba(255, 255, 255, 0.5);
+        }
+
+        .button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.2), -6px -6px 12px rgba(255, 255, 255, 0.5);
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3); /* White border */
+            border-radius: 50%;
+            border-top-color: #ffffff;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Hidden Class */
+        .hidden {
+            display: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .mode-label {
+                font-size: 16px;
+            }
+
+            .button {
+                padding: 12px 24px;
+                font-size: 16px;
+            }
+
+            .result {
+                font-size: 20px;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="switch-container">
+        <label class="switch">
+            <input type="checkbox" id="modeSwitch">
+            <span class="slider"></span>
+        </label>
+        <span class="mode-label" id="modeLabel">Red-Black</span>
+    </div>
+
+    <div class="container">
+        <div class="result" id="result"></div>
+        <button class="button hidden" id="redBlackButton" onclick="startProcess('RedBlack')">Click Me</button>
+        <button class="button hidden" id="abButton" onclick="startProcess('AB')">Click Me</button>
+    </div>
+
+    <script>
+        const modeSwitch = document.getElementById("modeSwitch");
+        const modeLabel = document.getElementById("modeLabel");
+        const redBlackButton = document.getElementById("redBlackButton");
+        const abButton = document.getElementById("abButton");
+        let resultTimeout;
+
+        // Initially show Red-Black button
+        redBlackButton.classList.remove("hidden");
+
+        // Switch change event
+        modeSwitch.addEventListener("change", function() {
+            if (this.checked) {
+                modeLabel.textContent = "A-B";
+                redBlackButton.classList.add("hidden");
+                abButton.classList.remove("hidden");
+            } else {
+                modeLabel.textContent = "Red-Black";
+                abButton.classList.add("hidden");
+                redBlackButton.classList.remove("hidden");
+            }
+        });
+
+        function startProcess(mode) {
+            const button = mode === "RedBlack" ? redBlackButton : abButton;
+            const resultElement = document.getElementById("result");
+
+            // Disable the button
+            button.disabled = true;
+
+            // Clear previous timeout (if any)
+            if (resultTimeout) {
+                clearTimeout(resultTimeout);
+            }
+
+            // Show loading animation in the result section
+            resultElement.innerHTML = "Loading <span class='loading'></span>";
+            resultElement.style.opacity = 1; // Make it visible
+
+            // Wait for 3 seconds (loading animation)
+            setTimeout(() => {
+                // Remove loading animation
+                resultElement.innerHTML = "";
+
+                // Show result based on mode
+                let randomResult;
+                if (mode === "RedBlack") {
+                    const results = ["Red", "Black"];
+                    randomResult = results[Math.floor(Math.random() * results.length)];
+                    resultElement.style.color = randomResult === "Red" ? "#ff6b6b" : "#2d3436";
+                } else {
+                    const results = ["A", "B"];
+                    randomResult = results[Math.floor(Math.random() * results.length)];
+                    resultElement.style.color = randomResult === "A" ? "#fdcb6e" : "#00b894";
+                }
+                resultElement.textContent = randomResult;
+                resultElement.classList.add("show");
+
+                // Remove result after 5 seconds
+                resultTimeout = setTimeout(() => {
+                    resultElement.classList.remove("show");
+                    resultElement.textContent = "";
+                }, 15000);
+
+                // Enable the button
+                button.disabled = false;
+            }, 3000);
+        }
+    </script>
+
+</body>
+</html>

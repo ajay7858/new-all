@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Number Generator</title>
+    <style>
+        :root {
+            --primary: #8A2BE2;  /* Purple */
+            --secondary: #FF69B4; /* Pink */
+            --accent: #9370DB;   /* Medium purple */
+            --light: #F8F8FF;    /* Ghost white */
+            --dark: #4B0082;     /* Indigo */
+            --gray: #D8BFD8;    /* Thistle */
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #E6E6FA 0%, #DDA0DD 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            transition: transform 0.3s ease;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        h1 {
+            color: var(--dark);
+            margin-bottom: 30px;
+            font-weight: 600;
+            font-size: 28px;
+        }
+        
+        .result-container {
+            height: 140px;
+            position: relative;
+            margin: 30px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .result {
+            font-size: 80px;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            transition: all 0.5s ease;
+        }
+        
+        .result.hidden {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.3);
+        }
+        
+        .btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(138, 43, 226, 0.4);
+        }
+        
+        .btn:disabled {
+            background: var(--gray);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="card">
+        <h1>Random Number Generator</h1>
+        <div class="result-container">
+            <div class="result hidden" id="result">?</div>
+        </div>
+        <button class="btn" id="generateBtn">Generate Number</button>
+    </div>
+
+    <script>
+        const generateBtn = document.getElementById('generateBtn');
+        const result = document.getElementById('result');
+        let hideResultTimeout;
+        
+        generateBtn.addEventListener('click', function() {
+            // Clear any existing timeout
+            clearTimeout(hideResultTimeout);
+            
+            // Immediately hide the current result if visible
+            result.classList.add('hidden');
+            
+            // Disable button during wait
+            generateBtn.disabled = true;
+            
+            // After 3 seconds, show new result
+            setTimeout(function() {
+                // Generate random number between 8-11
+                const randomNum = Math.floor(Math.random() * 4) + 8;
+                
+                // Show result
+                result.textContent = randomNum;
+                result.classList.remove('hidden');
+                result.classList.add('fade-in');
+                
+                // Enable button
+                generateBtn.disabled = false;
+                
+                // After 10 seconds, automatically hide the result
+                hideResultTimeout = setTimeout(function() {
+                    result.classList.add('hidden');
+                }, 10000);
+                
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
